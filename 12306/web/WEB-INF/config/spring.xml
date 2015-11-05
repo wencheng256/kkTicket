@@ -13,7 +13,7 @@
 
        <import resource="config.xml"/>
 
-       <bean name="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+       <bean name="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean" >
               <property name="configLocation" value="/WEB-INF/config/hibernate.cfg.xml"/>
               <property name="dataSource" ref="dataSourceLocal"/>
               <property name="annotatedClasses">

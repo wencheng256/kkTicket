@@ -7,6 +7,7 @@ import com.wencheng.domain.Plan;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ import java.util.*;
  * Created by wencheng on 15/11/2.
  */
 @Component
+@Scope(value = "prototype")
 public class WayDesigner {
 
     private JSONArray ja;
@@ -95,6 +97,11 @@ public class WayDesigner {
         return this;
     }
 
+    /**
+     *
+     * @param tn
+     * @param fn
+     */
     private void ProcessWay(KeyTrain tn, KeyTrain fn) {
         KeyTrain nfn = new KeyTrain();
         nfn.setMyArriveDate(fn.getMyArriveDate());
@@ -107,31 +114,51 @@ public class WayDesigner {
         nfn.setMyArriveTime(fn.getMyArriveTime());
         nfn.setMyStartTime(fn.getMyStartTime());
         nfn.setStartTime(fn.getStartTime());
-        if(tn.getArriveDate().getDay()>tn.getMyStartDate().getDay()){
+
+        Calendar cb = Calendar.getInstance();
+        cb.set(2000, 1, 1, 0, 0, 0);
+        Calendar ca = Calendar.getInstance();
+        ca.setTime(tn.getArriveDate());
+        Long daya = (ca.getTimeInMillis()-cb.getTimeInMillis())/(24*3600*1000);
+
+        Calendar cs = Calendar.getInstance();
+        cs.setTime(fn.getStartDate());
+        Long days = (cs.getTimeInMillis()-cb.getTimeInMillis())/(24*3600*1000);
+
+
+        if(daya>days){
             Calendar c = Calendar.getInstance();
             Calendar c1 = Calendar.getInstance();
             c.setTime(nfn.getStartDate());
-            c.add(Calendar.DATE, tn.getArriveDate().getDay()-tn.getMyStartDate().getDay());
+            c.add(Calendar.DATE, (int) (daya - days));
             nfn.setStartDate(c.getTime());
             c1.clear();
-            c1.setTime(nfn.getMyArriveDate());
-            c1.add(Calendar.DATE,tn.getArriveDate().getDay()-tn.getMyStartDate().getDay());
-            nfn.setMyArriveDate(c.getTime());
+            c1.setTime(fn.getMyArriveDate());
+            c1.add(Calendar.DATE, (int) (daya - days));
+            nfn.setMyArriveDate(c1.getTime());
         }
-        if((tn.getKeyStation().contains(fn.getKeyStation())||fn.getKeyStation().contains(tn.getKeyStation())) && tn.getArriveDate().before(nfn.getStartDate())){
+
+        if((tn.getKeyStation().contains(fn.getKeyStation())||fn.getKeyStation().contains(tn.getKeyStation())) && nfn.getStartDate().after(tn.getArriveDate())){
             Plan p = new Plan();
             p.setFrom(from);
             p.setTo(to);
             p.setStartDate(tn.getMyStartDate());
-            p.setArriveDate(fn.getMyArriveDate());
+            p.setArriveDate(nfn.getMyArriveDate());
             p.getList().add(tn);
             p.getList().add(nfn);
             p.setUsedMinute(com.wencheng.utils.Util.getMinute(tn.getMyStartDate(), nfn.getMyArriveDate()));
             p.setUsedTime(com.wencheng.utils.Util.getHours(tn.getMyStartDate(), nfn.getMyArriveDate()));
             String key = tn.getTraincode()+fn.getTraincode();
-            if(map.get(key)!=null){
+            Plan p1 = map.get(key);
+            if(p1!=null){
                 if(fn.getKeyStation().equals(nfn.getKeyStation())){
-                    map.put(key,p);
+                    if(p.getUsedMinute()<p1.getUsedMinute()){
+                        map.put(key,p);
+                    }
+                }else{
+                    if((p.getUsedMinute()+60)<p1.getUsedMinute()){
+                        map.put(key,p);
+                    }
                 }
             }else{
                 map.put(key,p);

@@ -6,6 +6,7 @@ import com.wencheng.domain.Plan;
 import com.wencheng.service.WayDesigner;
 import org.apache.struts2.ServletActionContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import java.util.Map;
  * Created by Administrator on 2015/11/2.
  */
 @Component("WayDesignAction")
+@Scope(value = "prototype")
 public class WayDesignAction extends ActionSupport{
 
     private String from;
