@@ -21,9 +21,12 @@
                         </result>
                 </action>
                 <action name="testRandom" class="TestRandom"/>
-                <action name="way" class="WayDesignAction">
-
+                <action name="way" class="ShowJoinWay">
+                        <result name="success">
+                                /WEB-INF/views/showtrans.jsp
+                        </result>
                 </action>
+                <action name="getway" class="WayDesignAction"/>
                 <action name="image" class="TestImageAction"/>
                 <action name="issingle" class="SingleWay"/>
                 <action name="show" class="ShowAction">

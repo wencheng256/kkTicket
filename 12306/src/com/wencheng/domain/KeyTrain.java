@@ -3,7 +3,6 @@ package com.wencheng.domain;
 import com.wencheng.utils.Util;
 import net.sf.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -28,6 +27,8 @@ public class KeyTrain {
     private String ton;
     private String seat;
     private JSONObject cost;
+    private String usedTimeT;
+    private String usedTimeF;
 
     public Date getArriveDate() {
         return arriveDate;
@@ -117,6 +118,22 @@ public class KeyTrain {
         this.td = td;
     }
 
+    public String getUsedTimeF() {
+        return usedTimeF;
+    }
+
+    public void setUsedTimeF(String usedTimeF) {
+        this.usedTimeF = usedTimeF;
+    }
+
+    public String getUsedTimeT() {
+        return usedTimeT;
+    }
+
+    public void setUsedTimeT(String usedTimeT) {
+        this.usedTimeT = usedTimeT;
+    }
+
     public String toString(){
         return getTraincode()+"|"+getKeyStation()+"|"+getStartDate()+"|"+getArriveDate()+"|"+getMyArriveDate()+"|"+getMyStartDate();
     }
@@ -168,7 +185,13 @@ public class KeyTrain {
         return cost;
     }
     public void build() throws Exception {
-        this.cost = Util.getPrice(trainnum,fromn,ton,td,seat);
+        this.cost = Util.getPrice(trainnum, fromn, ton, td, seat);
+        if(myStartDate!=null && arriveDate!=null){
+            this.usedTimeT = Util.getHours(getMyStartDate(),getArriveDate());
+        }
+        if(startDate!=null && myArriveDate!=null) {
+            this.usedTimeF = Util.getHours(getStartDate(), getMyArriveDate());
+        }
     }
 
     public void setCost(JSONObject cost) {

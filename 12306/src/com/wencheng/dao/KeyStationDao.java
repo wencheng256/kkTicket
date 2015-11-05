@@ -23,20 +23,20 @@ public class KeyStationDao {
      */
     public boolean isKeyStation(String name){
         Session s = sf.openSession();
-        Object b = null;
+        Long b = Long.valueOf(0);
         try{
             Transaction ts = s.beginTransaction();
-            String sql = "select distinct p from KeyStation as p where p.name = :name";
+            String sql = "select count(distinct p) from KeyStation as p where p.name = :name";
             Query q = s.createQuery(sql).setString("name",name);
-            b = q.uniqueResult();
-            if(b == null){
+            b = (Long)q.uniqueResult();
+            if(b == 0){
                 Query q1 = s.createQuery(sql).setString("name",name.substring(0,name.length() - 1));
-                b = q1.uniqueResult();
+                b = (Long) q1.uniqueResult();
             }
             ts.commit();
         }finally{
             s.close();
         }
-        return b != null;
+        return b > 0;
     }
 }

@@ -4,7 +4,6 @@ import com.wencheng.dao.KeyStationDao;
 import com.wencheng.dao.StationDao;
 import com.wencheng.domain.KeyTrain;
 import com.wencheng.domain.Plan;
-import com.wencheng.utils.Util;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,8 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -34,6 +35,7 @@ public class WayDesigner {
     private StationDao d;
     private String from;
     private String to;
+    private int i = 0;
 
     private JSONObject jof;
     private JSONObject jot;
@@ -85,22 +87,53 @@ public class WayDesigner {
     public WayDesigner analyze(){
         System.out.println("ok");
         Iterator<KeyTrain> to = toKey.iterator();
-        int i = 0;
+        ExecutorService pool = Executors.newFixedThreadPool(5);
+        WayDesigner o = this;
+
         while(to.hasNext()){
             KeyTrain tn = to.next();
             Iterator<KeyTrain> from = fromKey.iterator();
             while(from.hasNext()){
-                i++;
                 KeyTrain fn = from.next();
                 try{
-                    ProcessWay(tn, fn);
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                synchronized (o) {
+                                    i++;
+                                }
+                                ProcessWay(tn, fn);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                synchronized (o) {
+                                    i--;
+                                    if(i == 0){
+                                        o.notifyAll();
+                                    }
+                                }
+                            }
+
+                        }
+                    };
+                    pool.execute(r);
+
                 }catch(Exception e){
                     e.printStackTrace();
                 }
 
             }
         }
-        System.out.println(i);
+        if(i>0){
+            synchronized (this){
+                try {
+                    wait(500000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            };
+        }
         return this;
     }
 
