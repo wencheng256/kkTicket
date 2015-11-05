@@ -281,6 +281,12 @@ public class Util {
         return (a-s)/(1000*60);
     }
 
+    public static JSONObject getPrice(String train,String fn,String tn,String d,String st) throws Exception {
+        d = d.substring(0,4)+"-"+d.substring(4,6)+"-"+d.substring(6,8);
+        String url = "https://kyfw.12306.cn/otn/leftTicket/queryTicketPrice?train_no="+train+"&from_station_no="+fn+"&to_station_no="+tn+"&seat_types=134OM&train_date="+d;
+        return getJSON(url);
+    }
+
     /**
      * 获取通过某个城市的列车
      */

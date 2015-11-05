@@ -21,7 +21,9 @@
                         </result>
                 </action>
                 <action name="testRandom" class="TestRandom"/>
-                <action name="way" class="WayDesignAction"/>
+                <action name="way" class="WayDesignAction">
+
+                </action>
                 <action name="image" class="TestImageAction"/>
                 <action name="issingle" class="SingleWay"/>
                 <action name="show" class="ShowAction">

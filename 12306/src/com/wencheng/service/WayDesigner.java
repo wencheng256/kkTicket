@@ -4,6 +4,7 @@ import com.wencheng.dao.KeyStationDao;
 import com.wencheng.dao.StationDao;
 import com.wencheng.domain.KeyTrain;
 import com.wencheng.domain.Plan;
+import com.wencheng.utils.Util;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class WayDesigner {
     private String from;
     private String to;
 
+    private JSONObject jof;
+    private JSONObject jot;
+
     public WayDesigner(){
         ja = new JSONArray();
     }
@@ -46,6 +50,9 @@ public class WayDesigner {
         this.to = ton;
         JSONObject from = JSONObject.fromObject(session.getAttribute(d.getCode(fromn)));
         JSONObject to = JSONObject.fromObject(session.getAttribute(d.getCode(ton)));
+
+       this. jof = from;
+        this.jot = to;
 
         Object lock = new Object();
         Object lock2 = new Object();
@@ -102,7 +109,8 @@ public class WayDesigner {
      * @param tn
      * @param fn
      */
-    private void ProcessWay(KeyTrain tn, KeyTrain fn) {
+    private void ProcessWay(KeyTrain tn, KeyTrain fn) throws Exception {
+
         KeyTrain nfn = new KeyTrain();
         nfn.setMyArriveDate(fn.getMyArriveDate());
         nfn.setStartDate(fn.getStartDate());
@@ -114,6 +122,9 @@ public class WayDesigner {
         nfn.setMyArriveTime(fn.getMyArriveTime());
         nfn.setMyStartTime(fn.getMyStartTime());
         nfn.setStartTime(fn.getStartTime());
+        nfn.setFromn(fn.getFromn());
+        nfn.setTon(fn.getTon());
+        nfn.setTd(fn.getTd());
 
         Calendar cb = Calendar.getInstance();
         cb.set(2000, 1, 1, 0, 0, 0);
@@ -139,6 +150,10 @@ public class WayDesigner {
         }
 
         if((tn.getKeyStation().contains(fn.getKeyStation())||fn.getKeyStation().contains(tn.getKeyStation())) && nfn.getStartDate().after(tn.getArriveDate())){
+
+            tn.build();
+            nfn.build();
+
             Plan p = new Plan();
             p.setFrom(from);
             p.setTo(to);
@@ -148,6 +163,8 @@ public class WayDesigner {
             p.getList().add(nfn);
             p.setUsedMinute(com.wencheng.utils.Util.getMinute(tn.getMyStartDate(), nfn.getMyArriveDate()));
             p.setUsedTime(com.wencheng.utils.Util.getHours(tn.getMyStartDate(), nfn.getMyArriveDate()));
+
+            p.build();
             String key = tn.getTraincode()+fn.getTraincode();
             Plan p1 = map.get(key);
             if(p1!=null){

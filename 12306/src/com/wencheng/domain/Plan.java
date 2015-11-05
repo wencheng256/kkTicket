@@ -1,5 +1,7 @@
 package com.wencheng.domain;
 
+import net.sf.json.JSONObject;
+
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -16,6 +18,8 @@ public class Plan {
     private Date arriveDate;
     private Long usedMinute;
     private String usedTime;
+    private double cost = 0;
+    private String[] code = {"A1","O","A3","A4","M"};
 
     private List<KeyTrain> list = new LinkedList<KeyTrain>();
 
@@ -74,6 +78,15 @@ public class Plan {
     public void setList(List<KeyTrain> list) {
         this.list = list;
     }
+
+    public double getCost() {
+        return cost;
+    }
+
+    public void setCost(double cost) {
+        this.cost = cost;
+    }
+
     public String toString(){
         String ret =  "从"+from+"至"+to+"耗时"+usedTime;
         Iterator<KeyTrain> it = list.iterator();
@@ -84,5 +97,21 @@ public class Plan {
             System.out.println(n.toString1());
         }
         return ret;
+    }
+
+    public void build(){
+        Iterator<KeyTrain> it = list.iterator();
+        while(it.hasNext()){
+            KeyTrain n = it.next();
+            JSONObject co = n.getCost();
+            JSONObject d = co.getJSONObject("data");
+            for(int i = 0; i<code.length; i++){
+                Object o = d.get(code[i]);
+                if(o != null){
+                    cost+= Double.valueOf(o.toString().substring(1));
+                    break;
+                }
+            }
+        }
     }
 }

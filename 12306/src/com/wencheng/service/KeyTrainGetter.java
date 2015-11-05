@@ -107,7 +107,12 @@ public class KeyTrainGetter {
         String arrive_time = (String) o.get("arrive_time");
         String start_time = (String) o.get("start_time");
         String station_train_date = (String) o.get("station_train_date");
-        long timestamp = Long.parseLong(station_train_date);
+
+        String fromn = o.getString("station_no");
+        String seat = o.getString("seat_types");
+
+
+        long timestamp = Long.parseLong(date);
         Date lastTime = null;
 
         int start = Integer.parseInt(no);
@@ -132,6 +137,7 @@ public class KeyTrainGetter {
                         }
                         lastTime = d1;
                     }
+
                     String sn = (String) sta.get("station_no");
                     if (Integer.parseInt(sn) <= start) {
                         continue;
@@ -140,6 +146,12 @@ public class KeyTrainGetter {
                     //如果是交通枢纽则本列列车是keyTrain
                     if (dao.isKeyStation((String) sta.get("station_name"))) {
                         KeyTrain kt = new KeyTrain();
+
+                        kt.setFromn(fromn);
+                        kt.setTon(sn);
+                        kt.setSeat(seat);
+                        kt.setTd(station_train_date);
+
                         kt.setTrainnum(num);
                         kt.setTraincode(code);
                         kt.setDescribe(class_name);
@@ -221,6 +233,12 @@ public class KeyTrainGetter {
                     //如果是交通枢纽则本列列车是keyTrain
                     if (dao.isKeyStation((String) sta.get("station_name"))) {
                         KeyTrain kt = new KeyTrain();
+
+                        kt.setFromn(fromn);
+                        kt.setTon(sn);
+                        kt.setSeat(seat);
+                        kt.setTd(station_train_date);
+
                         kt.setTrainnum(num);
                         kt.setTraincode(code);
                         kt.setDescribe(class_name);
