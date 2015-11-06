@@ -1,6 +1,8 @@
 package com.wencheng.domain;
 
+import com.wencheng.utils.Util;
 import net.sf.json.JSONObject;
+import sun.tools.jconsole.inspector.Utils;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -20,6 +22,7 @@ public class Plan {
     private String usedTime;
     private double cost = 0;
     private String[] code = {"A1","O","A3","A4","M"};
+    private String wait;
 
     private List<KeyTrain> list = new LinkedList<KeyTrain>();
 
@@ -87,6 +90,14 @@ public class Plan {
         this.cost = cost;
     }
 
+    public String getWait() {
+        return wait;
+    }
+
+    public void setWait(String wait) {
+        this.wait = wait;
+    }
+
     public String toString(){
         String ret =  "从"+from+"至"+to+"耗时"+usedTime;
         Iterator<KeyTrain> it = list.iterator();
@@ -101,10 +112,19 @@ public class Plan {
 
     public void build(){
         Iterator<KeyTrain> it = list.iterator();
+        Date s = null;
+        Date e = null;
         while(it.hasNext()){
             KeyTrain n = it.next();
             JSONObject co = n.getCost();
             JSONObject d = co.getJSONObject("data");
+            if(s == null){
+                s = n.getArriveDate();
+            }else{
+                e = n.getStartDate();
+                wait = Util.getHours(s,e);
+                s = n.getMyArriveDate();
+            }
             for(int i = 0; i<code.length; i++){
                 Object o = d.get(code[i]);
                 if(o != null){

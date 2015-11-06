@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -53,7 +54,7 @@ public class WayDesigner {
         JSONObject from = JSONObject.fromObject(session.getAttribute(d.getCode(fromn)));
         JSONObject to = JSONObject.fromObject(session.getAttribute(d.getCode(ton)));
 
-       this. jof = from;
+        this. jof = from;
         this.jot = to;
 
         Object lock = new Object();
@@ -63,8 +64,8 @@ public class WayDesigner {
         KeyTrainGetter k2 = new KeyTrainGetter(lock2);
         k.setDao(dao);
         k2.setDao(dao);
-        k.getKeyTrain(from, true);
-        k2.getKeyTrain(to, false);
+        k.getKeyTrain(from, true,fromn);
+        k2.getKeyTrain(to, false,ton);
 
 
         while(!k.isComplete()){
@@ -86,15 +87,15 @@ public class WayDesigner {
 
     public WayDesigner analyze(){
         System.out.println("ok");
-        Iterator<KeyTrain> to = toKey.iterator();
-        ExecutorService pool = Executors.newFixedThreadPool(5);
-        WayDesigner o = this;
+        final Iterator<KeyTrain> to = toKey.iterator();
+        final ExecutorService pool = Executors.newFixedThreadPool(5);
+        final WayDesigner o = this;
 
         while(to.hasNext()){
-            KeyTrain tn = to.next();
-            Iterator<KeyTrain> from = fromKey.iterator();
+            final KeyTrain tn = to.next();
+            final Iterator<KeyTrain> from = fromKey.iterator();
             while(from.hasNext()){
-                KeyTrain fn = from.next();
+               final  KeyTrain fn = from.next();
                 try{
                     Runnable r = new Runnable() {
                         @Override
@@ -109,9 +110,6 @@ public class WayDesigner {
                             } finally {
                                 synchronized (o) {
                                     i--;
-                                    if(i == 0){
-                                        o.notifyAll();
-                                    }
                                 }
                             }
 
@@ -122,17 +120,13 @@ public class WayDesigner {
                 }catch(Exception e){
                     e.printStackTrace();
                 }
-
             }
         }
-        if(i>0){
-            synchronized (this){
-                try {
-                    wait(500000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            };
+        pool.shutdown();
+        try {
+            pool.awaitTermination(50, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         return this;
     }
@@ -143,6 +137,10 @@ public class WayDesigner {
      * @param fn
      */
     private void ProcessWay(KeyTrain tn, KeyTrain fn) throws Exception {
+
+        if(!(tn.getKeyStation().contains(fn.getKeyStation())||fn.getKeyStation().contains(tn.getKeyStation()))){
+            return;
+        }
 
         KeyTrain nfn = new KeyTrain();
         nfn.setMyArriveDate(fn.getMyArriveDate());
@@ -158,6 +156,10 @@ public class WayDesigner {
         nfn.setFromn(fn.getFromn());
         nfn.setTon(fn.getTon());
         nfn.setTd(fn.getTd());
+        nfn.setCost(fn.getCost());
+        nfn.setBuild(fn.isBuild());
+        nfn.setUsedTimeF(fn.getUsedTimeF());
+        nfn.setUsedTimeT(fn.getUsedTimeT());
 
         Calendar cb = Calendar.getInstance();
         cb.set(2000, 1, 1, 0, 0, 0);
@@ -182,9 +184,11 @@ public class WayDesigner {
             nfn.setMyArriveDate(c1.getTime());
         }
 
-        if((tn.getKeyStation().contains(fn.getKeyStation())||fn.getKeyStation().contains(tn.getKeyStation())) && nfn.getStartDate().after(tn.getArriveDate())){
+
+        if( nfn.getStartDate().after(tn.getArriveDate())){
 
             tn.build();
+            fn.build();
             nfn.build();
 
             Plan p = new Plan();
@@ -213,7 +217,56 @@ public class WayDesigner {
             }else{
                 map.put(key,p);
             }
+
+
+        }else{
+            Calendar c = Calendar.getInstance();
+            Calendar c1 = Calendar.getInstance();
+            c.setTime(nfn.getStartDate());
+            c.add(Calendar.DATE, 1);
+            nfn.setStartDate(c.getTime());
+            c1.setTime(nfn.getMyArriveDate());
+            c1.add(Calendar.DATE,1);
+            nfn.setMyArriveDate(c1.getTime());
+
+            if(nfn.getStartDate().after(tn.getArriveDate())){
+
+                tn.build();
+                nfn.build();
+                fn.build();
+
+                Plan p = new Plan();
+                p.setFrom(from);
+                p.setTo(to);
+                p.setStartDate(tn.getMyStartDate());
+                p.setArriveDate(nfn.getMyArriveDate());
+                p.getList().add(tn);
+                p.getList().add(nfn);
+                p.setUsedMinute(com.wencheng.utils.Util.getMinute(tn.getMyStartDate(), nfn.getMyArriveDate()));
+                p.setUsedTime(com.wencheng.utils.Util.getHours(tn.getMyStartDate(), nfn.getMyArriveDate()));
+
+                p.build();
+                String key = tn.getTraincode()+fn.getTraincode();
+                Plan p1 = map.get(key);
+                if(p1!=null){
+                    if(fn.getKeyStation().equals(nfn.getKeyStation())){
+                        if(p.getUsedMinute()<p1.getUsedMinute()){
+                            map.put(key,p);
+                        }
+                    }else{
+                        if((p.getUsedMinute()+60)<p1.getUsedMinute()){
+                            map.put(key,p);
+                        }
+                    }
+                }else{
+                    map.put(key,p);
+                }
+
+            }
+
+
         }
+
     }
 
     public Map<String, Plan> getMap() {

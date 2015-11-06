@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by wencheng on 15/10/30.
@@ -24,6 +25,7 @@ public class KeyTrainGetter {
     public KeyTrainGetter(Object lock){
         this.lock = lock;
     }
+    private int count = 0;
 
 
 
@@ -58,35 +60,40 @@ public class KeyTrainGetter {
      * 获取从某站点通过的重点列车，主要方法
      * @param jo 站点车辆数据
      */
-    public  void getKeyTrain(JSONObject jo,final boolean come) {
+    public  void getKeyTrain(JSONObject jo,final boolean come,String stationname) {
         final ExecutorService pools = Executors.newFixedThreadPool(10);
-        JSONArray yz = jo.getJSONObject("data").getJSONArray("data");
+        final JSONArray yz = jo.getJSONObject("data").getJSONArray("data");
         for(int i = 0; i<yz.size(); i++){
+            if(!yz.getJSONObject(i).getString("station_name").equals(stationname)){
+                continue;
+            }
+            synchronized (KeyTrainGetter.this) {
+                count = i;
+            }
             final JSONObject o = yz.getJSONObject(i);
             pools.execute(new Runnable() {
                 @Override
                 public void run() {
-                    synchronized (this){
+                    synchronized (KeyTrainGetter.this){
                         num++;
                     }
                     try {
                         isKeyTrain(o,come);
                     } catch (Exception e) {
                         e.printStackTrace();
-                    }finally{
-                        synchronized (this){
-                            num--;
-                        }
-                        if(num == 0){
-                            pools.shutdown();
-                            complete = true;
-                            synchronized (lock){
-                                lock.notifyAll();
-                            }
-                        }
                     }
                 }
             });
+        }
+        pools.shutdown();
+        try {
+            pools.awaitTermination(50, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        synchronized (lock){
+            lock.notifyAll();
+            complete = true;
         }
     }
 

@@ -29,6 +29,7 @@ public class KeyTrain {
     private JSONObject cost;
     private String usedTimeT;
     private String usedTimeF;
+    private boolean build = false;
 
     public Date getArriveDate() {
         return arriveDate;
@@ -181,10 +182,21 @@ public class KeyTrain {
         this.myArriveTime = myArriveTime;
     }
 
+    public boolean isBuild() {
+        return build;
+    }
+
+    public synchronized void setBuild(boolean build) {
+        this.build = build;
+    }
+
     public JSONObject getCost() {
         return cost;
     }
-    public void build() throws Exception {
+    public synchronized void build() throws Exception {
+        if(build){
+            return;
+        }
         this.cost = Util.getPrice(trainnum, fromn, ton, td, seat);
         if(myStartDate!=null && arriveDate!=null){
             this.usedTimeT = Util.getHours(getMyStartDate(),getArriveDate());
@@ -192,6 +204,7 @@ public class KeyTrain {
         if(startDate!=null && myArriveDate!=null) {
             this.usedTimeF = Util.getHours(getStartDate(), getMyArriveDate());
         }
+        build = true;
     }
 
     public void setCost(JSONObject cost) {

@@ -29,9 +29,11 @@ public class GetCity extends ActionSupport{
     public String execute() throws Exception {
         HttpSession session = ServletActionContext.getRequest().getSession();
         city = dao.getCode(name);
+
         JSONObject jo = Util.getCityTrain(name, code, date, city, session);
         session.setAttribute(city, jo.toString());
         JSONObject j = new JSONObject();
+
         if(jo.getJSONObject("data").getBoolean("flag")){
             j.put("result", true);
         }else{

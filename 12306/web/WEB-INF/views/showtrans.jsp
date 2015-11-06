@@ -28,6 +28,15 @@
   <!-- jquery validation i18n -->
   <!-- head and footer -->
   <title>车票预订 | 客运服务 | 铁路客户服务中心</title>
+  <style>
+    .tdclass{
+      color:#333;
+    }
+    .tdh1{
+      font-family: "微软雅黑", "黑体";
+      font-size: 15px;;
+    }
+  </style>
   <!-- 双日历 -->
 </head>
 <body><!--header start-->
@@ -53,46 +62,6 @@
 </div>
 </div>
 <!--header end-->
-<div id="608_complain" style="display: none;"><div class="mark"></div>
-  <div class="up-box" style="width:640px;"><div class="up-box-hd">举报告知确认书<a href="javascript:" id="608_complain_close" shape="rect">关闭</a>
-  </div>
-    <div class="up-box-bd" style="padding:15px 10px;border:1px solid #298CCE;"><table class="per-ticket" style="margin-left:0px;"><tr><td rowspan="1" colspan="1">举报人姓名：<strong id="608_name" style="font-size:20px"></strong>
-    </td>
-      <td rowspan="1" colspan="1">联系电话：<strong id="608_tel" style="font-size:20px"></strong>
-      </td>
-    </tr>
-      <tr><td colspan="2" rowspan="1">身份证件号码：<strong id="608_card" style="font-size:20px"></strong>
-      </td>
-      </tr>
-      <tr></tr>
-      <tr><td colspan="2" rowspan="1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;本人确认举报身份信息被他人冒用购买<strong id="ticketInfo" style="font-size:20px"></strong>
-        次车票。本人承诺本次举报及购票所提交的身份信息属实，并对虚假举报后果负责。</td>
-      </tr>
-      <tr><td colspan="2" rowspan="1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;铁路部门郑重提醒，将在车站和列车对该车票进行重点查验。根据国务院颁布的《铁路安全管理条例》，对该车票所记载身份信息与所持身份证件或者真实身份不符的持票人，铁路部门将拒绝其进站乘车。同时，公安机关将依法调查。</td>
-      </tr>
-      <tr><td colspan="2" rowspan="1">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;铁路部门将对您的举报信息保密，谢谢您的合作！</td>
-      </tr>
-    </table>
-      <div class="lay-btn"><a href="javascript:" id="608_complain_cancel" class="btn92" shape="rect">取消</a>
-        <a href="javascript:" id="608_complain_ok" class="btn92s" shape="rect">确认举报</a>
-      </div>
-    </div>
-  </div>
-</div>
-<div id="608_check" style="display: none;"><div class="mark"></div>
-  <div class="up-box"><div class="up-box-hd">温馨提示<a href="javascript:" id="608_check_close" shape="rect">关闭</a>
-  </div>
-    <div class="up-box-bd"><div class="up-con clearfix"><span class="icon i-opt"></span>
-      <div class="r-txt"><div class="tit" id="608_check_msg"></div>
-        <div class="tit" style="color:#FB7403">是否举报？</div>
-      </div>
-    </div>
-      <div class="lay-btn"><a href="javascript:" id="608_check_cancel" class="btn92" shape="rect">取消</a>
-        <a href="javascript:" id="608_check_ok" class="btn92s" shape="rect">网上举报</a>
-      </div>
-    </div>
-  </div>
-</div>
 <!--页面主体  开始-->
 <div class="content"><div style="display: none">
 </div>
@@ -138,7 +107,11 @@
   </tr>
   </thead>
     <tbody id="queryLeftTable">
-
+      <tr id="loadimg">
+        <td colspan="7" style="background: #f9f9f9">
+          <img src="/images/loading.gif" alt=""/>
+        </td>
+      </tr>
     </tbody>
   </table>
 
@@ -153,11 +126,13 @@
   <p>京ICP备10009636号</p>
 </div>
 <script type="text/javascript">
+  /*<![CDATA[*/
   var from = "${from}";
   var to  = "${to}";
   var data;
   var tb = document.getElementById("queryLeftTable");
   var sl = [];
+  var load = document.getElementById("loadimg");
   window.onload = function(){
     getway();
   }
@@ -190,9 +165,9 @@
       tr.setAttribute("style","background:#fff9a0");
       td1.setAttribute("colspan","7");
 
-      var inner = "从" + e.from + "到" + e.to;
+      var inner = "<h1 class='tdh1'>从" + e.from + "  &gt;&gt;&gt;  " + e.to;
       var list = e.list;
-      inner+="共耗时"+e["usedTime"]+" 预计费用"+ e.cost+"元";
+      inner+="共耗时"+e["usedTime"]+" 预计费用"+ e.cost+"元  等待"+ e.wait+"</h1>";
 
 
       var tr1 = document.createElement("tr");
@@ -206,7 +181,7 @@
       tr1.appendChild(td3);
       var td4 = document.createElement("td");
       td4.setAttribute("class","tdclass");
-      td4.innerHTML = list[0].startDate.month+"-"+list[0].startDate.date+"   "+list[0].myStartTime;
+      td4.innerHTML = list[0].myStartDate.month+"-"+list[0].myStartDate.date+"   "+list[0].myStartTime;
       tr1.appendChild(td4);
       var td5 = document.createElement("td");
       td5.setAttribute("class","tdclass");
@@ -214,12 +189,16 @@
       tr1.appendChild(td5);
       var td6 = document.createElement("td");
       td6.setAttribute("class","tdclass");
-      td6.innerHTML = list[0].startDate.month+"-"+list[0].startDate.date+"   "+list[0].arriveTime;
+      td6.innerHTML = list[0].arriveDate.month+"-"+list[0].arriveDate.date+"   "+list[0].arriveTime;
       tr1.appendChild(td6);
       var td6 = document.createElement("td");
       td6.setAttribute("class","tdclass");
       td6.innerHTML = list[0].usedTimeT;
       tr1.appendChild(td6);
+      var td7 = document.createElement("td");
+      td7.setAttribute("class","tdclass");
+      td7.innerHTML = "前往购买";
+      tr1.appendChild(td7);
 
 
       var tr11 = document.createElement("tr");
@@ -233,20 +212,25 @@
       tr11.appendChild(td31);
       var td41 = document.createElement("td");
       td41.setAttribute("class","tdclass");
-      td41.innerHTML = list[1].startDate.month+"-"+list[1].startDate.date+"   "+list[0].startTime;
+      td41.innerHTML = list[1].startDate.month+"-"+list[1].startDate.date+"   "+list[1].startTime;
       tr11.appendChild(td41);
       var td51 = document.createElement("td");
       td51.setAttribute("class","tdclass");
-      td51.innerHTML = e.from;
+      td51.innerHTML = e.to;
       tr11.appendChild(td51);
       var td61 = document.createElement("td");
       td61.setAttribute("class","tdclass");
-      td61.innerHTML = list[1].startDate.month+"-"+list[0].startDate.date+"   "+list[0].myArriveTime;
+      td61.innerHTML = list[1].myArriveDate.month+"-"+list[1].myArriveDate.date+"   "+list[1].myArriveTime;
       tr11.appendChild(td61);
       var td61 = document.createElement("td");
       td61.setAttribute("class","tdclass");
       td61.innerHTML = list[1].usedTimeF;
       tr11.appendChild(td61);
+
+      var td71= document.createElement("td");
+      td71.setAttribute("class","tdclass");
+      td71.innerHTML = "前往购买";
+      tr11.appendChild(td71);
 
       td1.innerHTML = inner;
       tr.appendChild(td1);
@@ -259,10 +243,12 @@
     $.post("/getway",{"from":from,"to":to},function(v){
       data = v[0];
       start();
+      load.style.display = "none";
       sortByTime();
       init();
     },"json");
   }
+  /*]]>*/
 </script>
 </body>
 </html>

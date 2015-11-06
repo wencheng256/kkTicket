@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -37,6 +38,7 @@ public class WayDesignAction extends ActionSupport{
         HttpServletResponse r = ServletActionContext.getResponse();
         r.setContentType("application/json; charset=UTF-8");
         r.getWriter().write(JSONArray.fromObject(map).toString());
+
         return null;
     }
 
