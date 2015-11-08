@@ -36,6 +36,12 @@
                 </action>
                 <action name="loadway" class="SingleWay" method="loadTrain"/>
                 <action name="getcity" class="GetCity"/>
+                <action name="buy" class="BuyAction">
+                        <result name="success">
+                                /WEB-INF/views/buy.jsp
+                        </result>
+                </action>
+                <action name="getstationcode" class="GetStationCodeAction"/>
         </package>
 
 

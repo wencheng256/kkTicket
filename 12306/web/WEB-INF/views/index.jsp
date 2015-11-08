@@ -371,40 +371,42 @@
 <div class="remodal" data-remodal-id="wait">
     加载时间可能较长，请耐心等待……
 </div>
-<form action="/show" id="form1" method="post">
+<form action="/buy" id="form1" method="post">
   <input type="hidden" name="from" value=""/>
   <input type="hidden" name="to" value=""/>
   <input type="hidden" name="date" value=""/>
+  <input type="hidden" name="multi" id="" value = "false"/>
 </form>
 
 
 <form action="/way" id="form2" method="post">
   <input type="hidden" name="from" value=""/>
   <input type="hidden" name="to" value=""/>
+  <input type="hidden" name="date" value=""/>
 </form>
 
 
 <script>
+
+  function send1(){
+    var f1 = document.getElementById("form1");
+    f1.from.value = $("#fromStationText").val();
+    console.log(f1.from.value);
+    f1.to.value = $("#toStationText").val();
+    f1.date.value = $("#train_date").val();
+    f1.submit();
+  }
     var send = 0 ;
     function testSingle(){
       window.location.hash = "wait";
         $.post("/issingle",{"from":$("#fromStationText").val(),to:$("#toStationText").val(),date:$("#train_date").val()},function(data){
             if(data.result){
                 window.location.hash = "";
-                send();
+                send1();
             }else{
                 window.location.hash = "modal";
             }
         },"json");
-    }
-
-    function send(){
-      var f1 = document.getElementById("form1");
-      f1.from.value = $("#fromStationText").val();
-      console.log(f1.from.value);
-      f1.to.value = $("#toStationText").val();
-      f1.date.value = $("#train_date").val();
-      f1.submit();
     }
 
     function changeImage(){
@@ -447,6 +449,7 @@
               var f2 = document.getElementById("form2");
               f2.from.value = $("#fromStationText").val();
               f2.to.value = $("#toStationText").val();
+              f2.date.value = $("#train_date").val();
               f2.submit();
             }
           }

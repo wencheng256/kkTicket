@@ -28,6 +28,7 @@ public class GetCity extends ActionSupport{
     @Override
     public String execute() throws Exception {
         HttpSession session = ServletActionContext.getRequest().getSession();
+
         city = dao.getCode(name);
 
         JSONObject jo = Util.getCityTrain(name, code, date, city, session);

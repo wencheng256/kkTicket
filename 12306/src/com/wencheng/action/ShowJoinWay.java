@@ -11,6 +11,7 @@ public class ShowJoinWay extends ActionSupport{
 
     private String from;
     private String to;
+    private String date;
 
     public String getFrom() {
         return from;
@@ -26,5 +27,13 @@ public class ShowJoinWay extends ActionSupport{
 
     public void setTo(String to) {
         this.to = to;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 }

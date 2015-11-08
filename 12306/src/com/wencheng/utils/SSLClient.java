@@ -19,7 +19,6 @@ import java.security.cert.X509Certificate;
 public class SSLClient extends DefaultHttpClient{
     public SSLClient() throws Exception{
         super();
-        System.out.println("请求");
         SSLContext ctx = SSLContext.getInstance("TLS");
         X509TrustManager tm = new X509TrustManager() {
             @Override

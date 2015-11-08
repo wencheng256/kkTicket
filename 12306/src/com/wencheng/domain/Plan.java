@@ -2,7 +2,6 @@ package com.wencheng.domain;
 
 import com.wencheng.utils.Util;
 import net.sf.json.JSONObject;
-import sun.tools.jconsole.inspector.Utils;
 
 import java.util.Date;
 import java.util.Iterator;
@@ -23,6 +22,8 @@ public class Plan {
     private double cost = 0;
     private String[] code = {"A1","O","A3","A4","M"};
     private String wait;
+    private Long waitminute;
+
 
     private List<KeyTrain> list = new LinkedList<KeyTrain>();
 
@@ -98,6 +99,14 @@ public class Plan {
         this.wait = wait;
     }
 
+    public Long getWaitminute() {
+        return waitminute;
+    }
+
+    public void setWaitminute(Long waitminute) {
+        this.waitminute = waitminute;
+    }
+
     public String toString(){
         String ret =  "从"+from+"至"+to+"耗时"+usedTime;
         Iterator<KeyTrain> it = list.iterator();
@@ -123,6 +132,7 @@ public class Plan {
             }else{
                 e = n.getStartDate();
                 wait = Util.getHours(s,e);
+                waitminute = Util.getMinute(s,e);
                 s = n.getMyArriveDate();
             }
             for(int i = 0; i<code.length; i++){

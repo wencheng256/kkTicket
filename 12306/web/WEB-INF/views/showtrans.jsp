@@ -36,6 +36,18 @@
       font-family: "微软雅黑", "黑体";
       font-size: 15px;;
     }
+    .checi{
+      color: #00a600;
+    }
+    .middle{
+      color: #ac36e5;
+    }
+    .start{
+      color: #0000cb;
+    }
+    .end{
+      color: #ac401e;
+    }
   </style>
   <!-- 双日历 -->
 </head>
@@ -72,17 +84,20 @@
     <div class="clear"></div>
   </div>
     <div class="sear-sel-bd quick-buy-sel quick-buy-open" id="sear-sel-bd" style="height: 17px">
-      <div class="pos-top" style="margin-right:20px;">发车时间：
-        <select class="select-small" id="cc_start_time"><option value="00002400">00:00--24:00</option>
-          <option value="00000600">00:00--06:00</option>
-          <option value="06001200">06:00--12:00</option>
-          <option value="12001800">12:00--18:00</option>
-          <option value="18002400">18:00--24:00</option>
-        </select>
-      </div>
-      <div class="section clearfix"><div class="section-hd">车次类型：</div>
-        <div class="section-bd" id="cc_train_type_btn_all"><span class="btn-all" id="train_type_btn_all">全部</span>
-          <ul id="_ul_station_train_code"></ul>
+
+      <div class="section clearfix"><div class="section-hd">排序方式：</div>
+        <div class="section-bd" id="cc_train_type_btn_all">
+          <ul id="_ul_station_train_code">
+            <a href="javascript:sortByTime()">
+              <li>运行时间</li>
+            </a>
+            <a href="javascript:sortByCost()">
+            <li>预计花费</li>
+            </a>
+            <a href="javascript:sortByWait()">
+            <li>等待时间</li>
+            </a>
+          </ul>
         </div>
       </div>
 
@@ -119,6 +134,16 @@
 </div>
 <!--页面主体  结束-->
 <!--页面底部  开始-->
+
+<form action="/buy" method="post" id="form1">
+  <input type="hidden" name="from"/>
+  <input type="hidden" name="to"/>
+  <input type="hidden" name="index"/>
+  <input type="hidden" name="train"/>
+  <input type="hidden" name="date"/>
+  <input type="hidden" name="multi"/>
+</form>
+
 <div class="footer"><p><a href="http://www.12306.cn/mormhweb/gljd/gywm" target="true">关于我们</a>
   |<a href="http://www.12306.cn/mormhweb/gljd/wzls/" target="true">网站声明</a>
 </p>
@@ -129,6 +154,7 @@
   /*<![CDATA[*/
   var from = "${from}";
   var to  = "${to}";
+  var date = "${date}";
   var data;
   var tb = document.getElementById("queryLeftTable");
   var sl = [];
@@ -136,9 +162,22 @@
   window.onload = function(){
     getway();
   }
+  function sortByCost(){
+    sl = sl.sort(function(a,b){
+      if(a.cost == b.cost){
+        return 0;
+      }
+      if(a.cost> b.cost){
+        return 1;
+      }else{
+        return -1;
+      }
+    });
+    init();
+  }
   function sortByTime(){
     sl = sl.sort(function(a,b){
-      if(a == b){
+      if(a.usedMinute == b.usedMinute){
         return 0;
       }
       if(a.usedMinute> b.usedMinute){
@@ -147,6 +186,20 @@
         return -1;
       }
     });
+    init();
+  }
+  function sortByWait(){
+    sl = sl.sort(function(a,b){
+      if(a.waitminute == b.waitminute){
+        return 0;
+      }
+      if(a.waitminute> b.waitminute){
+        return 1;
+      }else{
+        return -1;
+      }
+    });
+    init();
   }
   function start(){
     var i = 0;
@@ -158,8 +211,24 @@
       i++;
     }
   }
+
+  var f1 = document.getElementById("form1");
+  function postToBuy(train,index){
+    f1.from.value = from;
+    f1.to.value = to;
+    f1.date.value = date;
+    f1.index.value = index;
+    f1.train.value = train;
+    f1.multi.value = true;
+    f1.submit();
+  }
+
   function init(){
+    tb.innerHTML = "";
     sl.forEach(function(e){
+
+      var train = e.list[0].traincode+e.list[1].traincode;
+
       var tr = document.createElement("tr");
       var td1 = document.createElement("td");
       tr.setAttribute("style","background:#fff9a0");
@@ -172,11 +241,11 @@
 
       var tr1 = document.createElement("tr");
       var td2 = document.createElement("td");
-      td2.setAttribute("class","tdclass");
+      td2.setAttribute("class","tdclass checi");
       td2.innerHTML = list[0].traincode;
       tr1.appendChild(td2);
       var td3 = document.createElement("td");
-      td3.setAttribute("class","tdclass");
+      td3.setAttribute("class","tdclass start");
       td3.innerHTML = e.from;
       tr1.appendChild(td3);
       var td4 = document.createElement("td");
@@ -184,7 +253,7 @@
       td4.innerHTML = list[0].myStartDate.month+"-"+list[0].myStartDate.date+"   "+list[0].myStartTime;
       tr1.appendChild(td4);
       var td5 = document.createElement("td");
-      td5.setAttribute("class","tdclass");
+      td5.setAttribute("class","tdclass middle");
       td5.innerHTML = list[0].keyStation;
       tr1.appendChild(td5);
       var td6 = document.createElement("td");
@@ -196,18 +265,18 @@
       td6.innerHTML = list[0].usedTimeT;
       tr1.appendChild(td6);
       var td7 = document.createElement("td");
-      td7.setAttribute("class","tdclass");
-      td7.innerHTML = "前往购买";
+      td7.setAttribute("class","tdclass but");
+      td7.innerHTML = "<a href=\"javascript:postToBuy('"+train+"',0)\">前往购买</a>";
       tr1.appendChild(td7);
 
 
       var tr11 = document.createElement("tr");
       var td21 = document.createElement("td");
-      td21.setAttribute("class","tdclass");
+      td21.setAttribute("class","tdclass checi");
       td21.innerHTML = list[1].traincode;
       tr11.appendChild(td21);
       var td31 = document.createElement("td");
-      td31.setAttribute("class","tdclass");
+      td31.setAttribute("class","tdclass middle");
       td31.innerHTML = list[1].keyStation;
       tr11.appendChild(td31);
       var td41 = document.createElement("td");
@@ -215,7 +284,7 @@
       td41.innerHTML = list[1].startDate.month+"-"+list[1].startDate.date+"   "+list[1].startTime;
       tr11.appendChild(td41);
       var td51 = document.createElement("td");
-      td51.setAttribute("class","tdclass");
+      td51.setAttribute("class","tdclass end");
       td51.innerHTML = e.to;
       tr11.appendChild(td51);
       var td61 = document.createElement("td");
@@ -228,8 +297,8 @@
       tr11.appendChild(td61);
 
       var td71= document.createElement("td");
-      td71.setAttribute("class","tdclass");
-      td71.innerHTML = "前往购买";
+      td71.setAttribute("class","tdclass but");
+      td71.innerHTML = "<a href=\"javascript:postToBuy('"+train+"',1)\">前往购买</a>";
       tr11.appendChild(td71);
 
       td1.innerHTML = inner;
@@ -240,12 +309,11 @@
     });
   }
   function getway(){
-    $.post("/getway",{"from":from,"to":to},function(v){
+    $.post("/getway",{"from":from,"to":to,"date":date},function(v){
       data = v[0];
       start();
       load.style.display = "none";
       sortByTime();
-      init();
     },"json");
   }
   /*]]>*/

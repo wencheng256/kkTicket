@@ -137,7 +137,6 @@ public class WayDesigner {
      * @param fn
      */
     private void ProcessWay(KeyTrain tn, KeyTrain fn) throws Exception {
-
         if(!(tn.getKeyStation().contains(fn.getKeyStation())||fn.getKeyStation().contains(tn.getKeyStation()))){
             return;
         }
