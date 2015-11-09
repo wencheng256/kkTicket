@@ -74,10 +74,7 @@
   <div class="nav">
     <ul>
       <li><a href="/index">客运首页</a>
-      </li>
-      <li id="selectYuding"><a href="/show">车票预订</a>
-      </li>
-    </ul>
+      </li></ul>
   </div>
 </div>
 </div>
@@ -149,15 +146,6 @@
   <!--新闻选项卡 开始-->
   <div class="slideTxt"><div class="hd"><ul><li><span>高铁动卧</span>
   </li>
-    <li><span>最新动态</span>
-    </li>
-    <li><a href="/otn/gonggao/help.html" style="color:white" shape="rect"><span>购票常见问题</span>
-    </a>
-    </li>
-    <li><span>使用须知</span>
-    </li>
-    <li class="end"><span>相关规章</span>
-    </li>
   </ul>
   </div>
     <div class="bd"><div id="item_pic" class="item-pic" style="display: block;"><div class="pic-bd"><ul><li style="display: list-item;"><img src="images/new-ad3.png" />

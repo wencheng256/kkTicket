@@ -10,7 +10,7 @@
 <html>
 
 <head>
-    <title></title>
+    <title>购买车票</title>
   <script src="/js/jquery.min.js"></script>
   <style>
     *{
